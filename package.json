@@ -5,9 +5,13 @@
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "build:mac": "electron-builder --mac",
-    "build:win": "electron-builder --win",
-    "build:all": "electron-builder --mac --win"
+    "build:mac": "electron-builder --mac --publish never",
+    "build:mac:arm64": "electron-builder --mac --arm64 --publish never",
+    "build:mac:x64": "electron-builder --mac --x64 --publish never",
+    "build:win": "electron-builder --win --publish never",
+    "build:win:x64": "electron-builder --win --x64 --publish never",
+    "build:win:ia32": "electron-builder --win --ia32 --publish never",
+    "build:all": "electron-builder --mac --win --publish never"
   },
   "keywords": [
     "vpn",
@@ -37,6 +41,7 @@
   "build": {
     "appId": "com.slipstream.gui",
     "productName": "SlipStream GUI",
+    "publish": null,
     "directories": {
       "output": "dist"
     },
@@ -47,23 +52,16 @@
       "!*.md",
       "!.gitignore"
     ],
-    "extraResources": [
-      {
-        "from": "slipstream-client-mac",
-        "to": "slipstream-client-mac",
-        "filter": [
-          "**/*"
-        ]
-      },
-      {
-        "from": "slipstream-client-win.exe",
-        "to": "slipstream-client-win.exe",
-        "filter": [
-          "**/*"
-        ]
-      }
-    ],
     "mac": {
+      "extraResources": [
+        {
+          "from": "slipstream-client-mac",
+          "to": "slipstream-client-mac",
+          "filter": [
+            "**/*"
+          ]
+        }
+      ],
       "target": "dmg",
       "category": "public.app-category.utilities",
       "icon": "assets/icon.png",
@@ -75,7 +73,16 @@
     },
     "win": {
       "target": "nsis",
-      "icon": "assets/icon.png"
+      "icon": "assets/icon.png",
+      "extraResources": [
+        {
+          "from": "slipstream-client-win.exe",
+          "to": "slipstream-client-win.exe",
+          "filter": [
+            "**/*"
+          ]
+        }
+      ]
     },
     "nsis": {
       "oneClick": false,

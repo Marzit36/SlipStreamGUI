@@ -899,6 +899,108 @@ ipcMain.handle('get-settings', () => {
   };
 });
 
+ipcMain.handle('get-version', () => {
+  const packageJson = require('./package.json');
+  return packageJson.version;
+});
+
+ipcMain.handle('check-update', async () => {
+  try {
+    const https = require('https');
+    const packageJson = require('./package.json');
+    const currentVersion = packageJson.version;
+    
+    return new Promise((resolve) => {
+      const options = {
+        hostname: 'api.github.com',
+        path: '/repos/mirzaaghazadeh/SlipStreeamGUI/releases/latest',
+        method: 'GET',
+        headers: {
+          'User-Agent': 'SlipStream-GUI',
+          'Accept': 'application/vnd.github.v3+json'
+        }
+      };
+      
+      const req = https.request(options, (res) => {
+        let data = '';
+        
+        res.on('data', (chunk) => {
+          data += chunk;
+        });
+        
+        res.on('end', () => {
+          try {
+            if (res.statusCode === 200) {
+              const release = JSON.parse(data);
+              const latestVersion = release.tag_name.replace(/^v/, ''); // Remove 'v' prefix if present
+              
+              // Compare versions (simple string comparison works for semantic versioning)
+              const hasUpdate = compareVersions(latestVersion, currentVersion) > 0;
+              
+              resolve({
+                success: true,
+                hasUpdate: hasUpdate,
+                currentVersion: currentVersion,
+                latestVersion: latestVersion,
+                releaseUrl: release.html_url,
+                releaseNotes: release.body || ''
+              });
+            } else {
+              resolve({
+                success: false,
+                error: `GitHub API returned status ${res.statusCode}`
+              });
+            }
+          } catch (err) {
+            resolve({
+              success: false,
+              error: `Failed to parse response: ${err.message}`
+            });
+          }
+        });
+      });
+      
+      req.on('error', (err) => {
+        resolve({
+          success: false,
+          error: err.message
+        });
+      });
+      
+      req.setTimeout(10000, () => {
+        req.destroy();
+        resolve({
+          success: false,
+          error: 'Request timeout'
+        });
+      });
+      
+      req.end();
+    });
+  } catch (err) {
+    return {
+      success: false,
+      error: err.message
+    };
+  }
+});
+
+// Simple version comparison function
+function compareVersions(v1, v2) {
+  const parts1 = v1.split('.').map(Number);
+  const parts2 = v2.split('.').map(Number);
+  
+  for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+    const part1 = parts1[i] || 0;
+    const part2 = parts2[i] || 0;
+    
+    if (part1 > part2) return 1;
+    if (part1 < part2) return -1;
+  }
+  
+  return 0;
+}
+
 ipcMain.handle('set-verbose', (event, verbose) => {
   verboseLogging = verbose;
   saveSettings(RESOLVER, DOMAIN, useTunMode ? 'tun' : 'proxy', verbose);

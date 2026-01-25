@@ -27,6 +27,7 @@ jobs:
         run: npm install
 
       - name: Verify project structure
+        shell: bash
         run: |
           echo "Checking project files..."
           test -f main.js || exit 1
@@ -38,6 +39,7 @@ jobs:
         run: node -c main.js
 
       - name: Verify binaries exist
+        shell: bash
         run: |
           if [ "${{ runner.os }}" == "Linux" ]; then
             echo "Skipping binary check on Linux"

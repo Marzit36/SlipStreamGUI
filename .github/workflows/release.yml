@@ -16,14 +16,27 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [macos-latest, windows-latest]
         include:
           - os: macos-latest
             platform: mac
-            artifact-name: SlipStream-GUI-macOS
+            arch: arm64
+            build-script: build:mac:arm64
+            artifact-name: SlipStream-GUI-macOS-ARM64
+          - os: macos-latest
+            platform: mac
+            arch: x64
+            build-script: build:mac:x64
+            artifact-name: SlipStream-GUI-macOS-Intel
           - os: windows-latest
             platform: win
-            artifact-name: SlipStream-GUI-Windows
+            arch: x64
+            build-script: build:win:x64
+            artifact-name: SlipStream-GUI-Windows-x64
+          - os: windows-latest
+            platform: win
+            arch: ia32
+            build-script: build:win:ia32
+            artifact-name: SlipStream-GUI-Windows-x86
 
     steps:
       - name: Checkout code
@@ -43,18 +56,34 @@ jobs:
         run: chmod +x slipstream-client-mac
 
       - name: Build application
-        run: npm run build:${{ matrix.platform }}
+        run: npm run ${{ matrix.build-script }}
 
-      - name: Upload macOS artifact
-        if: matrix.os == 'macos-latest'
+      - name: Upload macOS ARM64 artifact
+        if: matrix.platform == 'mac' && matrix.arch == 'arm64'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact-name }}
           path: dist/*.dmg
           retention-days: 30
 
-      - name: Upload Windows artifact
-        if: matrix.os == 'windows-latest'
+      - name: Upload macOS Intel artifact
+        if: matrix.platform == 'mac' && matrix.arch == 'x64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: dist/*.dmg
+          retention-days: 30
+
+      - name: Upload Windows x64 artifact
+        if: matrix.platform == 'win' && matrix.arch == 'x64'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact-name }}
+          path: dist/*.exe
+          retention-days: 30
+
+      - name: Upload Windows x86 artifact
+        if: matrix.platform == 'win' && matrix.arch == 'ia32'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact-name }}
@@ -71,16 +100,28 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Download macOS artifact
+      - name: Download macOS ARM64 artifact
         uses: actions/download-artifact@v4
         with:
-          name: SlipStream-GUI-macOS
+          name: SlipStream-GUI-macOS-ARM64
           path: release/macos
 
-      - name: Download Windows artifact
+      - name: Download macOS Intel artifact
         uses: actions/download-artifact@v4
         with:
-          name: SlipStream-GUI-Windows
+          name: SlipStream-GUI-macOS-Intel
+          path: release/macos
+
+      - name: Download Windows x64 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SlipStream-GUI-Windows-x64
+          path: release/windows
+
+      - name: Download Windows x86 artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: SlipStream-GUI-Windows-x86
           path: release/windows
 
       - name: Extract version from tag or input
@@ -102,8 +143,10 @@ jobs:
 
             ### 📥 Downloads
 
-            - **macOS**: Download the DMG file below
-            - **Windows**: Download the EXE installer below
+            - **macOS (Apple Silicon)**: Download the ARM64 DMG file below
+            - **macOS (Intel)**: Download the Intel DMG file below
+            - **Windows (64-bit)**: Download the x64 EXE installer below
+            - **Windows (32-bit)**: Download the x86 EXE installer below
 
             ### ✨ What's New
 
