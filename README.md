@@ -132,16 +132,61 @@ bash <(curl -Ls https://raw.githubusercontent.com/AliRezaBeigy/slipstream-rust-d
 
 ## 🐛 Troubleshooting
 
+### macOS: "SlipStream GUI is damaged and can't be opened"
+
+If you see this error when trying to open the app on macOS, it's usually due to macOS Gatekeeper security settings. Here's how to fix it:
+
+**Option 1: Remove the quarantine attribute (Recommended)**
+```bash
+# Open Terminal and run:
+xattr -cr /Applications/SlipStream\ GUI.app
+```
+
+Then try opening the app again.
+
+**Option 2: Allow the app in System Settings**
+1. Go to **System Settings** → **Privacy & Security**
+2. Scroll down to the **Security** section
+3. If you see a message about "SlipStream GUI" being blocked, click **"Open Anyway"**
+4. Confirm by clicking **"Open"** in the dialog
+
+**Option 3: Right-click to open**
+1. Right-click (or Control-click) on the SlipStream GUI app
+2. Select **"Open"** from the context menu
+3. Click **"Open"** in the confirmation dialog
+
+After the first successful launch, macOS will remember your choice and you won't see this error again.
+
+### Windows: Run as Administrator
+
+For best functionality on Windows, especially when configuring system proxy settings, run SlipStream GUI as Administrator:
+
+**Option 1: Right-click method**
+1. Right-click on the SlipStream GUI shortcut or executable
+2. Select **"Run as administrator"**
+3. Click **"Yes"** in the User Account Control (UAC) prompt
+
+**Option 2: Always run as administrator**
+1. Right-click on the SlipStream GUI shortcut
+2. Select **"Properties"**
+3. Go to the **"Compatibility"** tab
+4. Check **"Run this program as an administrator"**
+5. Click **"OK"**
+
+**Note:** Running as administrator is recommended for automatic system proxy configuration. The app will work without admin privileges, but you may need to configure proxy settings manually.
+
 ### VPN won't start
 
 - Check that ports 8080 and 5201 are not in use
 - Verify your DNS resolver and domain settings
 - Check the logs panel for error messages
+- On Windows, try running as Administrator (see above)
 
 ### System proxy not working
 
 - Ensure the "Configure System Proxy" toggle is enabled
 - On macOS, you may be prompted for administrator password
+- On Windows, run the app as Administrator for automatic configuration
 - Some apps may bypass system proxy (configure them manually)
 
 ### Connection issues

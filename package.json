@@ -1,6 +1,6 @@
 {
   "name": "slipstream-gui",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "SlipStream GUI Client with HTTP Proxy",
   "main": "main.js",
   "scripts": {
@@ -53,10 +53,11 @@
     },
     "files": [
       "**/*",
-      "!node_modules/**/*",
       "!dist/**/*",
       "!*.md",
-      "!.gitignore"
+      "!.gitignore",
+      "!**/*.md",
+      "!**/.gitignore"
     ],
     "mac": {
       "extraResources": [
