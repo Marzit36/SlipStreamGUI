@@ -15,6 +15,7 @@ jobs:
   build-and-release:
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
         include:
           - os: macos-latest
@@ -42,11 +43,6 @@ jobs:
             arch: x64
             build-script: build:linux:x64
             artifact-name: SlipStream-GUI-Linux-x64
-          - os: ubuntu-latest
-            platform: linux
-            arch: arm64
-            build-script: build:linux:arm64
-            artifact-name: SlipStream-GUI-Linux-ARM64
 
     steps:
       - name: Checkout code
@@ -57,6 +53,12 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
+
+      - name: Install system dependencies for Linux
+        if: matrix.platform == 'linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y fakeroot dpkg-dev
 
       - name: Install dependencies
         run: npm install
@@ -152,18 +154,6 @@ jobs:
           retention-days: 30
           if-no-files-found: error
 
-      - name: Upload Linux ARM64 artifact
-        if: matrix.platform == 'linux' && matrix.arch == 'arm64'
-        uses: actions/upload-artifact@v4
-        with:
-          name: ${{ matrix.artifact-name }}
-          path: |
-            dist/**/*.AppImage
-            dist/**/*.deb
-            dist/*.AppImage
-            dist/*.deb
-          retention-days: 30
-          if-no-files-found: error
 
   create-release:
     needs: build-and-release
@@ -210,13 +200,6 @@ jobs:
           path: release/linux/x64
         continue-on-error: true
 
-      - name: Download Linux ARM64 artifact
-        uses: actions/download-artifact@v4
-        with:
-          name: SlipStream-GUI-Linux-ARM64
-          path: release/linux/arm64
-        continue-on-error: true
-
       - name: Check Linux artifacts availability
         shell: bash
         run: |
@@ -226,12 +209,6 @@ jobs:
             ls -lh release/linux/x64/
           else
             echo "⚠️ No Linux x64 artifacts found"
-          fi
-          if [ -d release/linux/arm64 ] && [ "$(ls -A release/linux/arm64 2>/dev/null)" ]; then
-            echo "✅ Linux ARM64 artifacts found:"
-            ls -lh release/linux/arm64/
-          else
-            echo "⚠️ No Linux ARM64 artifacts found"
           fi
 
       - name: Move Windows artifacts to release folder
@@ -253,10 +230,7 @@ jobs:
           if [ -d release/linux/x64 ]; then
             mv release/linux/x64/* release/linux/ 2>/dev/null || true
           fi
-          if [ -d release/linux/arm64 ]; then
-            mv release/linux/arm64/* release/linux/ 2>/dev/null || true
-          fi
-          rm -rf release/linux/x64 release/linux/arm64 2>/dev/null || true
+          rm -rf release/linux/x64 2>/dev/null || true
 
       - name: List downloaded artifacts
         shell: bash
@@ -294,7 +268,6 @@ jobs:
             - **Windows (64-bit)**: Download the x64 EXE installer below
             - **Windows (32-bit)**: Download the x86 EXE installer below
             - **Linux (64-bit)**: Download the x64 AppImage or DEB package below
-            - **Linux (ARM64)**: Download the ARM64 AppImage or DEB package below
 
             ### ✨ What's New
 

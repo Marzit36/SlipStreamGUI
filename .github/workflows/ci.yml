@@ -61,9 +61,13 @@ jobs:
               echo "✅ Windows binary found"
             else
               echo "❌ Windows binary (slipstream-client-win.exe) not found"
+              echo ""
+              echo "This binary is required for Windows builds (see BUILD.md and .gitignore)."
+              echo "The binary must be added to the repository root."
+              echo ""
               echo "Current directory: $(pwd)"
               echo "Files in directory:"
-              ls -la || dir
+              ls -la 2>/dev/null || dir 2>/dev/null || echo "Could not list directory"
               exit 1
             fi
           else
