@@ -20,7 +20,11 @@
 <br>
 
 <div align="center">
-  <a href="README-FA.md">📄 مشاهده راهنمای فارسی</a>
+  <a href="README-EN.md">📄 Simple User Guide (English)</a>
+  <br><br>
+
+
+  <a href="README-FA.md">📄 راهنما ساده استفاده (فارسی)</a>
 </div>
 
 <br>
@@ -46,6 +50,7 @@
 
 - **Install** the app from the latest release
 - **Set your server** (`Domain`) and `DNS Resolver` (or keep defaults for testing)
+- **DNS Checker (optional)**: run it, and click **"Use"** on any **OK** row to set your `DNS Resolver`
 - **Start VPN** and watch the **Status** indicators turn “Running”
 - **Verify** with “Test Proxy Connection” and check the **Logs** panel if needed
 - **Optional**: Share your VPN over Wi‑Fi to your phone using the built-in HTTP proxy (`8080`)
@@ -94,7 +99,14 @@ That's it! No additional setup required.
    - **Domain**: Your SlipStream server domain (default: `s.example.com`)
    - **System Proxy**: Toggle to auto-configure system proxy (recommended)
 
-3. **Start the VPN**:
+3. **DNS Checker (optional, recommended if you're unsure about DNS)**:
+   - Click **"DNS Checker"**
+   - Enter a **test domain** (example: `google.com`)
+   - Enter one or more **DNS server IPs** to test
+   - **OK = OK** (no action needed)
+   - Click **"Use"** on any **OK** row to auto-set your **DNS Resolver** (the app will force port `53`)
+
+4. **Start the VPN**:
    - Click the **"Start VPN"** button
    - Wait for status indicators to show "Running"
    - Your traffic is now routed through SlipStream!
