@@ -1,0 +1,1201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SlipStream GUI</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .app-container {
+            display: flex;
+            gap: 20px;
+            width: 100%;
+            max-width: 1200px;
+            height: 90vh;
+        }
+
+        .main-panel {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 400px;
+            overflow-y: auto;
+            max-height: 90vh;
+        }
+
+        .logs-panel {
+            background: #1e1e1e;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            min-width: 400px;
+            color: #d4d4d4;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .header h1 {
+            color: #667eea;
+            font-size: 24px;
+            margin-bottom: 3px;
+        }
+
+        .header p {
+            color: #666;
+            font-size: 12px;
+        }
+
+        .help-btn {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-size: 18px;
+            color: #667eea;
+            transition: all 0.3s;
+        }
+
+        .help-btn:hover {
+            background: #e0e0e0;
+            transform: scale(1.1);
+        }
+
+        .github-btn {
+            position: absolute;
+            top: 0;
+            left: 0;
+            background: #f5f5f5;
+            border: none;
+            border-radius: 50%;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            text-decoration: none;
+            color: #333;
+        }
+
+        .github-btn:hover {
+            background: #e0e0e0;
+            transform: scale(1.1);
+        }
+
+        .github-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: #333;
+            transition: fill 0.3s;
+        }
+
+        .github-btn:hover svg {
+            fill: #667eea;
+        }
+
+        /* Tooltip */
+        .github-btn::after {
+            content: "Don't forget to Star it";
+            position: absolute;
+            left: 40px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #333;
+            color: white;
+            padding: 6px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 1000;
+        }
+
+        .github-btn:hover::after {
+            opacity: 1;
+        }
+
+        .status {
+            background: #f5f5f5;
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .status-main {
+            text-align: center;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        .status-main-text {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-top: 6px;
+        }
+
+        .status-indicator {
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 8px;
+            background: #e0e0e0;
+            box-shadow: 0 0 0 3px rgba(224, 224, 224, 0.3);
+        }
+
+        .status-indicator.active {
+            background: #4caf50;
+            box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3);
+            animation: pulse 2s infinite;
+        }
+
+        .status-indicator.running {
+            background: #4caf50;
+        }
+
+        .status-indicator.stopped {
+            background: #f44336;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .status-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .status-label {
+            font-size: 13px;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .status-value {
+            font-size: 13px;
+            color: #333;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .settings {
+            background: #f9f9f9;
+            border-radius: 10px;
+            padding: 12px;
+            margin-bottom: 15px;
+        }
+
+        .settings-header {
+            font-size: 13px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 10px;
+        }
+
+        .form-group:last-child {
+            margin-bottom: 0;
+        }
+
+        .form-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 12px;
+            color: #666;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* Toggle Switch Styles */
+        .toggle-container {
+            position: relative;
+            display: inline-block;
+            width: 50px;
+            height: 26px;
+            margin: 0;
+        }
+
+        .toggle-container input[type="checkbox"] {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #667eea;
+            border-radius: 26px;
+            transition: .4s;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: '';
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+            transform: translateX(24px);
+        }
+
+        .toggle-container input:checked + .toggle-slider {
+            background-color: #667eea;
+        }
+
+        .toggle-container input:not(:checked) + .toggle-slider {
+            background-color: #ccc;
+        }
+
+        .toggle-container input:not(:checked) + .toggle-slider:before {
+            transform: translateX(0);
+        }
+
+        .button {
+            width: 100%;
+            padding: 12px;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 8px;
+        }
+
+        .button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .button-start {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .button-start:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .button-stop {
+            background: #f44336;
+            color: white;
+        }
+
+        .button-stop:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(244, 67, 54, 0.4);
+        }
+
+        .info {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 8px;
+            font-size: 11px;
+            color: #1976d2;
+        }
+
+        .info strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .logs-header {
+            font-size: 16px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logs-header-controls {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .logs-verbose-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12px;
+            color: #d4d4d4;
+        }
+
+        .logs-verbose-toggle label {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+        }
+
+        .logs-verbose-toggle .toggle-container {
+            margin: 0;
+        }
+
+        .logs-clear {
+            background: #333;
+            border: 1px solid #555;
+            color: #fff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        .logs-clear:hover {
+            background: #444;
+        }
+
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Courier New', monospace;
+            font-size: 11px;
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .log-entry {
+            margin-bottom: 5px;
+            line-height: 1.4;
+            word-wrap: break-word;
+        }
+
+        .log-entry.error {
+            color: #f44336;
+        }
+
+        .log-entry.success {
+            color: #4caf50;
+        }
+
+        .log-empty {
+            color: #666;
+            text-align: center;
+            margin-top: 50%;
+            font-style: italic;
+        }
+
+        .intro-modal {
+            display: flex;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 2000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .intro-modal.hidden {
+            display: none;
+        }
+
+        .intro-modal-content {
+            background: white;
+            border-radius: 20px;
+            padding: 0;
+            max-width: 60%;
+            max-height: 70%;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .intro-modal-image {
+            max-width: 100%;
+            max-height: 60vh;
+            border-radius: 20px 20px 0 0;
+            object-fit: contain;
+        }
+
+        .intro-modal-button {
+            width: 100%;
+            padding: 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 0 0 20px 20px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .intro-modal-button:hover {
+            background: #5568d3;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            max-height: 80vh;
+            overflow-y: auto;
+            margin: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .modal-title {
+            font-size: 24px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 28px;
+            color: #999;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .modal-close:hover {
+            color: #333;
+        }
+
+        .modal-section {
+            margin-bottom: 25px;
+        }
+
+        .modal-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .modal-section h3 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 10px;
+        }
+
+        .modal-section p {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 8px;
+        }
+
+        .modal-section ul {
+            font-size: 14px;
+            color: #666;
+            line-height: 1.8;
+            margin-left: 20px;
+        }
+
+        .tech-button {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 10px;
+            width: 100%;
+        }
+
+        .tech-button:hover {
+            background: #5568d3;
+            transform: translateY(-2px);
+        }
+
+        .tech-section {
+            display: none;
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 2px solid #e0e0e0;
+        }
+
+        .tech-section.show {
+            display: block;
+        }
+
+        .tech-section code {
+            background: #f5f5f5;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+        }
+
+        .tech-section pre {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            overflow-x: auto;
+            font-size: 12px;
+            line-height: 1.6;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Main Panel -->
+        <div class="main-panel">
+            <div class="header">
+                <a href="#" onclick="openGitHub(); return false;" class="github-btn" title="Don't forget to Star it">
+                    <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+                    </svg>
+                </a>
+                <button class="help-btn" onclick="showHelp()" title="Help & About">?</button>
+                <h1>🔒 SlipStream GUI</h1>
+                <p>Secure your connection</p>
+            </div>
+
+            <div class="status">
+                <div class="status-main">
+                    <span class="status-indicator" id="statusIndicator"></span>
+                    <div class="status-main-text" id="statusText">Disconnected</div>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">SlipStream Client:</span>
+                    <span class="status-value">
+                        <span class="status-indicator" id="slipstreamIndicator"></span>
+                        <span id="slipstreamStatus">Stopped</span>
+                    </span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">HTTP Proxy:</span>
+                    <span class="status-value">
+                        <span class="status-indicator" id="proxyIndicator"></span>
+                        <span id="proxyStatus">Stopped</span>
+                    </span>
+                </div>
+                <div class="status-row">
+                    <span class="status-label">System Proxy:</span>
+                    <span class="status-value" id="systemProxyStatus">Not Configured (Optional)</span>
+                </div>
+            </div>
+
+            <div class="settings">
+                <div class="settings-header">⚙️ Settings</div>
+                <div class="form-group">
+                    <label class="form-label">
+                        <span>Configure System Proxy</span>
+                        <label class="toggle-container">
+                            <input type="checkbox" id="systemProxyToggle" checked onchange="toggleSystemProxy()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </label>
+                    <div style="font-size: 11px; color: #666; margin-top: 5px;">
+                        Automatically configure system proxy settings to route all traffic through VPN
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">DNS Resolver (IP:Port)</label>
+                    <input type="text" class="form-input" id="resolverInput" placeholder="8.8.8.8:53" value="8.8.8.8:53">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Domain</label>
+                    <input type="text" class="form-input" id="domainInput" placeholder="s.example.com" value="s.example.com">
+                </div>
+            </div>
+
+            <button class="button button-start" id="startBtn" onclick="startService()">Start VPN</button>
+            <button class="button button-stop" id="stopBtn" onclick="stopService()" disabled>Stop VPN</button>
+            <button class="button" id="testBtn" onclick="testProxy()" style="background: #2196f3; color: white; margin-top: 0;" disabled>Test Proxy Connection</button>
+        </div>
+
+        <!-- Logs Panel -->
+        <div class="logs-panel">
+            <div class="logs-header">
+                <span>📋 Logs</span>
+                <div class="logs-header-controls">
+                    <div class="logs-verbose-toggle">
+                        <label>
+                            <span>Verbose</span>
+                            <label class="toggle-container">
+                                <input type="checkbox" id="verboseToggle" onchange="toggleVerbose()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </label>
+                    </div>
+                    <button class="logs-clear" onclick="clearLogs()">Clear</button>
+                </div>
+            </div>
+            <div class="log" id="log">
+                <div class="log-empty">No logs yet. Start the VPN to see activity.</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Intro Modal -->
+    <div class="intro-modal hidden" id="introModal">
+        <div class="intro-modal-content">
+            <img src="intro.png" alt="SlipStream GUI Introduction" class="intro-modal-image">
+            <button class="intro-modal-button" onclick="closeIntro()">Get Started</button>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div class="modal" id="helpModal" onclick="if(event.target.id === 'helpModal') closeHelp()">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">Help & About</div>
+                <button class="modal-close" onclick="closeHelp()">&times;</button>
+            </div>
+            
+            <div class="modal-section">
+                <h3>About SlipStream GUI</h3>
+                <p>SlipStream GUI is a user-friendly, cross-platform VPN client that makes it easy to connect to SlipStream VPN. It provides secure, encrypted tunneling for all your internet traffic through an intuitive graphical interface.</p>
+                <p>Whether you're looking to protect your privacy, access geo-restricted content, or secure your connection on public Wi-Fi, SlipStream GUI makes VPN protection accessible to everyone.</p>
+            </div>
+
+            <div class="modal-section">
+                <h3>How to Use</h3>
+                <p><strong>Step 1: Configure Settings (Optional)</strong></p>
+                <ul>
+                    <li>Enter your DNS Resolver (default: 8.8.8.8:53)</li>
+                    <li>Enter your SlipStream server domain (default: s.example.com)</li>
+                </ul>
+                
+                <p><strong>Step 2: Start the VPN</strong></p>
+                <ul>
+                    <li>Click the "Start VPN" button</li>
+                    <li>Wait for the status indicators to show "Running"</li>
+                    <li>The app will automatically configure system proxy if the toggle is enabled</li>
+                </ul>
+                
+                <p><strong>Step 3: Use Your Apps</strong></p>
+                <ul>
+                    <li>If system proxy is configured, all apps will automatically use the VPN</li>
+                    <li>Otherwise, configure individual apps to use HTTP proxy: <strong>127.0.0.1:8080</strong></li>
+                    <li>Check the logs panel to see connection activity</li>
+                </ul>
+                
+                <p><strong>Step 4: Stop When Done</strong></p>
+                <ul>
+                    <li>Click "Stop VPN" when you want to disconnect</li>
+                    <li>System proxy will be automatically unconfigured if it was auto-configured</li>
+                </ul>
+            </div>
+
+            <div class="modal-section">
+                <h3>Features</h3>
+                <ul>
+                    <li><strong>Easy Setup:</strong> No technical knowledge required - just click Start</li>
+                    <li><strong>System-Wide Protection:</strong> Route all your traffic through the VPN</li>
+                    <li><strong>Real-Time Logs:</strong> Monitor connection activity with detailed logs</li>
+                    <li><strong>Verbose Logging:</strong> Toggle detailed technical logs for debugging</li>
+                    <li><strong>Test Connection:</strong> Verify your proxy is working with the test button</li>
+                    <li><strong>Cross-Platform:</strong> Works on both macOS and Windows</li>
+                </ul>
+            </div>
+
+            <div class="modal-section">
+                <h3>Status Indicators</h3>
+                <ul>
+                    <li><strong>SlipStream Client:</strong> Shows if the SlipStream process is running in the background</li>
+                    <li><strong>HTTP Proxy:</strong> Shows if the HTTP proxy server is active (listening on 127.0.0.1:8080)</li>
+                    <li><strong>System Proxy:</strong> Shows if system proxy is configured (optional - you can configure apps manually)</li>
+                </ul>
+            </div>
+
+            <div class="modal-section">
+                <h3>Settings Explained</h3>
+                <ul>
+                    <li><strong>Configure System Proxy:</strong> Automatically configure your system to use the VPN for all apps</li>
+                    <li><strong>DNS Resolver:</strong> The DNS server to use for domain name resolution (format: IP:Port)</li>
+                    <li><strong>Domain:</strong> Your SlipStream server domain address</li>
+                    <li><strong>Verbose Logging:</strong> Show detailed connection logs (useful for troubleshooting)</li>
+                </ul>
+                <p><strong>Note:</strong> Changes to DNS Resolver or Domain require restarting the VPN to take effect.</p>
+            </div>
+
+            <div class="modal-section">
+                <button class="tech-button" onclick="toggleTechnical()">🔧 Are you a technical guy?</button>
+                <div class="tech-section" id="techSection">
+                    <h3>Technical Details</h3>
+                    
+                    <h4>Architecture Overview</h4>
+                    <p>SlipStream GUI is built with Electron and uses a multi-layer proxy architecture:</p>
+                    <pre>Application Layer (Browser/Apps)
+    ↓ HTTP/HTTPS Requests
+HTTP Proxy Server (Node.js - Port 8080)
+    ↓ SOCKS5 Protocol
+SOCKS5 Client (Port 5201)
+    ↓ Encrypted Tunnel
+SlipStream VPN Server</pre>
+
+                    <h4>How It Works</h4>
+                    <p><strong>1. SlipStream Client Process:</strong></p>
+                    <ul>
+                        <li>Runs the native <code>slipstream-client-mac</code> or <code>slipstream-client-win.exe</code> binary</li>
+                        <li>Establishes SOCKS5 proxy on <code>127.0.0.1:5201</code></li>
+                        <li>Handles encryption and connection to SlipStream servers</li>
+                    </ul>
+
+                    <p><strong>2. HTTP Proxy Server:</strong></p>
+                    <ul>
+                        <li>Built with Node.js <code>http</code> module</li>
+                        <li>Listens on <code>127.0.0.1:8080</code></li>
+                        <li>Handles HTTP requests via <code>socks-proxy-agent</code></li>
+                        <li>Handles HTTPS via CONNECT method with <code>socks</code> library</li>
+                        <li>Uses <code>http-proxy</code> library for enhanced CONNECT handling</li>
+                    </ul>
+
+                    <p><strong>3. System Proxy Configuration:</strong></p>
+                    <ul>
+                        <li><strong>macOS:</strong> Uses <code>networksetup -setwebproxy</code> and <code>networksetup -setsecurewebproxy</code></li>
+                        <li><strong>Windows:</strong> Uses <code>netsh winhttp set proxy</code></li>
+                        <li>Automatically detects active network interfaces on macOS</li>
+                    </ul>
+
+                    <h4>Code Structure</h4>
+                    <ul>
+                        <li><strong>main.js:</strong> Electron main process - handles window creation, IPC, proxy server, and system integration</li>
+                        <li><strong>index.html:</strong> Renderer process - UI, status display, logs, and user interactions</li>
+                        <li><strong>check-system-proxy.js:</strong> Helper module to check current system proxy status</li>
+                        <li><strong>package.json:</strong> Dependencies: <code>electron</code>, <code>socks</code>, <code>socks-proxy-agent</code>, <code>http-proxy</code></li>
+                    </ul>
+
+                    <h4>Key Technologies</h4>
+                    <ul>
+                        <li><strong>Electron:</strong> Cross-platform desktop app framework</li>
+                        <li><strong>Node.js HTTP Module:</strong> HTTP proxy server implementation</li>
+                        <li><strong>SOCKS5:</strong> Protocol for routing traffic through SlipStream client</li>
+                        <li><strong>IPC (Inter-Process Communication):</strong> Communication between main and renderer processes</li>
+                        <li><strong>Child Process:</strong> Spawning and managing SlipStream client binary</li>
+                    </ul>
+
+                    <h4>Request Flow</h4>
+                    <pre>1. Browser sends HTTP request to 127.0.0.1:8080
+2. HTTP Proxy receives request
+3. For HTTP: Uses SocksProxyAgent to forward via SOCKS5
+4. For HTTPS: 
+   - Receives CONNECT request
+   - Creates SOCKS5 tunnel via SocksClient.createConnection
+   - Sends "200 Connection established" response
+   - Pipes raw socket data bidirectionally
+5. SOCKS5 client forwards to SlipStream server
+6. Response flows back through the same path</pre>
+
+                    <h4>Configuration Files</h4>
+                    <ul>
+                        <li><strong>settings.json:</strong> Stores user preferences (resolver, domain, verbose logging)</li>
+                        <li>Created automatically in app directory</li>
+                        <li>Persists across app restarts</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="modal-section">
+                <h3>Version</h3>
+                <p>SlipStream GUI v1.0.0</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const { ipcRenderer } = require('electron');
+
+        let isRunning = false;
+        let useTunMode = false;
+
+        function showHelp() {
+            document.getElementById('helpModal').classList.add('show');
+        }
+
+        function closeHelp() {
+            document.getElementById('helpModal').classList.remove('show');
+            // Hide technical section when closing
+            const techSection = document.getElementById('techSection');
+            if (techSection) {
+                techSection.classList.remove('show');
+            }
+        }
+
+        function toggleTechnical() {
+            const techSection = document.getElementById('techSection');
+            if (techSection) {
+                techSection.classList.toggle('show');
+            }
+        }
+
+        function closeIntro() {
+            const introModal = document.getElementById('introModal');
+            if (introModal) {
+                introModal.classList.add('hidden');
+            }
+        }
+
+        async function openGitHub() {
+            await ipcRenderer.invoke('open-external', 'http://github.com/mirzaaghazadeh/SlipStreamGUI');
+        }
+
+        function clearLogs() {
+            const log = document.getElementById('log');
+            log.innerHTML = '<div class="log-empty">No logs yet. Start the VPN to see activity.</div>';
+        }
+
+        function updateStatus(running, details = {}) {
+            isRunning = running;
+            const indicator = document.getElementById('statusIndicator');
+            const text = document.getElementById('statusText');
+            const startBtn = document.getElementById('startBtn');
+            const stopBtn = document.getElementById('stopBtn');
+
+            // Main status
+            if (running) {
+                indicator.classList.add('active');
+                text.textContent = 'Connected';
+                startBtn.disabled = true;
+                stopBtn.disabled = false;
+            } else {
+                indicator.classList.remove('active');
+                text.textContent = 'Disconnected';
+                startBtn.disabled = false;
+                stopBtn.disabled = true;
+            }
+
+            // SlipStream status
+            const slipstreamIndicator = document.getElementById('slipstreamIndicator');
+            const slipstreamStatus = document.getElementById('slipstreamStatus');
+            if (details.slipstreamRunning) {
+                slipstreamIndicator.classList.add('running');
+                slipstreamIndicator.classList.remove('stopped');
+                slipstreamStatus.textContent = 'Running';
+            } else {
+                slipstreamIndicator.classList.add('stopped');
+                slipstreamIndicator.classList.remove('running');
+                slipstreamStatus.textContent = 'Stopped';
+            }
+
+            // HTTP Proxy status
+            const proxyIndicator = document.getElementById('proxyIndicator');
+            const proxyStatus = document.getElementById('proxyStatus');
+            if (details.proxyRunning) {
+                proxyIndicator.classList.add('running');
+                proxyIndicator.classList.remove('stopped');
+                proxyStatus.textContent = 'Running';
+            } else {
+                proxyIndicator.classList.add('stopped');
+                proxyIndicator.classList.remove('running');
+                proxyStatus.textContent = 'Stopped';
+            }
+
+            // System proxy status
+            const systemProxyStatus = document.getElementById('systemProxyStatus');
+            systemProxyStatus.textContent = details.systemProxyConfigured ? 'Configured' : 'Not Configured (Optional)';
+            
+            // Update toggle to match system proxy status
+            const toggle = document.getElementById('systemProxyToggle');
+            if (toggle && details.systemProxyConfigured !== undefined) {
+                toggle.checked = details.systemProxyConfigured;
+            }
+            
+            // Proxy info is now shown in logs instead
+        }
+
+        async function toggleVerbose() {
+            const toggle = document.getElementById('verboseToggle');
+            const enable = toggle.checked;
+            try {
+                const result = await ipcRenderer.invoke('set-verbose', enable);
+                if (result.success) {
+                    addLog(`Verbose logging ${enable ? 'enabled' : 'disabled'}`);
+                } else {
+                    toggle.checked = !enable; // Revert toggle
+                    addLog('Failed to update verbose setting', true);
+                }
+            } catch (err) {
+                console.error('Error toggling verbose:', err);
+                toggle.checked = !enable; // Revert toggle
+                addLog('Error: Failed to toggle verbose logging', true);
+            }
+        }
+
+        async function toggleSystemProxy() {
+            const toggle = document.getElementById('systemProxyToggle');
+            const enable = toggle.checked;
+            
+            if (!isRunning) {
+                addLog('Please start the VPN first before configuring system proxy', true);
+                toggle.checked = !enable; // Revert toggle
+                return;
+            }
+            
+            const result = await ipcRenderer.invoke('toggle-system-proxy', enable);
+            if (result.success) {
+                // Update status with full details
+                const currentStatus = await ipcRenderer.invoke('get-status');
+                updateStatus(isRunning, currentStatus.details || { systemProxyConfigured: result.configured });
+                
+                // Update toggle to match actual state
+                toggle.checked = result.configured;
+                
+                if (enable) {
+                    addLog('System proxy configured successfully', false, true);
+                } else {
+                    addLog('System proxy unconfigured');
+                }
+            } else {
+                addLog('Failed to ' + (enable ? 'configure' : 'unconfigure') + ' system proxy', true);
+                toggle.checked = !enable; // Revert toggle
+            }
+        }
+
+        async function startService() {
+            const resolver = document.getElementById('resolverInput').value.trim();
+            const domain = document.getElementById('domainInput').value.trim();
+            const tunMode = false;
+            useTunMode = false;
+            
+            if (!resolver || !domain) {
+                addLog('Error: Please fill in all settings', true);
+                return;
+            }
+
+            const result = await ipcRenderer.invoke('start-service', { resolver, domain, tunMode });
+            updateStatus(result.success, result.details || {});
+            if (result.success) {
+                addLog(`Service started successfully`, false, true);
+                addLog(`HTTP proxy listening on 127.0.0.1:8080`);
+                
+                // Enable test button
+                document.getElementById('testBtn').disabled = false;
+                
+                // Auto-configure system proxy if toggle is ON
+                const toggle = document.getElementById('systemProxyToggle');
+                if (toggle && toggle.checked) {
+                    setTimeout(async () => {
+                        const proxyResult = await ipcRenderer.invoke('toggle-system-proxy', true);
+                        if (proxyResult.success) {
+                            const currentStatus = await ipcRenderer.invoke('get-status');
+                            updateStatus(isRunning, currentStatus.details || {});
+                            addLog('System proxy configured automatically', false, true);
+                            
+                            // Auto-test after a delay
+                            setTimeout(() => {
+                                testProxy();
+                            }, 2000);
+                        } else {
+                            addLog('System proxy auto-configuration failed. You can configure it manually in Settings.', true);
+                        }
+                    }, 1000);
+                } else {
+                    addLog('Configure your apps to use proxy: 127.0.0.1:8080');
+                }
+            } else {
+                addLog('Error: ' + result.message, true);
+            }
+        }
+
+        async function stopService() {
+            const result = await ipcRenderer.invoke('stop-service');
+            updateStatus(false, result.details || {});
+            addLog('Service stopped');
+            document.getElementById('testBtn').disabled = true;
+        }
+
+        async function testProxy() {
+            const testBtn = document.getElementById('testBtn');
+            testBtn.disabled = true;
+            testBtn.textContent = 'Testing...';
+            
+            addLog('Testing proxy connection...');
+            
+            try {
+                const result = await ipcRenderer.invoke('test-proxy');
+                if (result.success) {
+                    addLog(`✅ Test successful! IP: ${result.ip}`, false, true);
+                    addLog(`Response time: ${result.responseTime}ms`, false, true);
+                } else {
+                    addLog(`❌ Test failed: ${result.error}`, true);
+                }
+            } catch (err) {
+                addLog(`❌ Test error: ${err.message}`, true);
+            } finally {
+                testBtn.disabled = false;
+                testBtn.textContent = 'Test Proxy Connection';
+            }
+        }
+
+        function addLog(message, isError = false, isSuccess = false) {
+            const log = document.getElementById('log');
+            const emptyMsg = log.querySelector('.log-empty');
+            if (emptyMsg) {
+                emptyMsg.remove();
+            }
+            
+            const entry = document.createElement('div');
+            entry.className = 'log-entry' + (isError ? ' error' : '') + (isSuccess ? ' success' : '');
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            log.appendChild(entry);
+            log.scrollTop = log.scrollHeight;
+        }
+
+        // Listen for status updates
+        ipcRenderer.on('status-update', (event, details) => {
+            updateStatus(isRunning, details);
+            // Update toggle when status changes
+            const toggle = document.getElementById('systemProxyToggle');
+            if (toggle && details.systemProxyConfigured !== undefined) {
+                toggle.checked = details.systemProxyConfigured;
+            }
+        });
+
+        // Listen for logs from main process
+        ipcRenderer.on('slipstream-log', (event, data) => {
+            addLog(data.trim());
+        });
+
+        ipcRenderer.on('slipstream-error', (event, data) => {
+            addLog('Error: ' + data.trim(), true);
+        });
+
+        ipcRenderer.on('slipstream-exit', (event, code) => {
+            addLog(`SlipStream client exited with code ${code}`, true);
+            updateStatus(false, {});
+        });
+
+        // Show intro modal on every app opening
+        const introModal = document.getElementById('introModal');
+        if (introModal) {
+            introModal.classList.remove('hidden');
+        }
+
+        // Check status on load
+        window.addEventListener('load', async () => {
+            const status = await ipcRenderer.invoke('get-status');
+            updateStatus(status.isRunning, status.details || {});
+            
+            // Load saved settings
+            const settings = await ipcRenderer.invoke('get-settings');
+            if (settings.resolver) {
+                document.getElementById('resolverInput').value = settings.resolver;
+            }
+            if (settings.domain) {
+                document.getElementById('domainInput').value = settings.domain;
+            }
+            if (settings.verbose !== undefined) {
+                document.getElementById('verboseToggle').checked = settings.verbose;
+            }
+            
+            // Check system proxy status and update toggle (default to ON)
+            const proxyStatus = await ipcRenderer.invoke('check-system-proxy');
+            const toggle = document.getElementById('systemProxyToggle');
+            // Default to ON if not configured, or match current state
+            toggle.checked = proxyStatus.configured || true; // Default ON
+        });
+    </script>
+</body>
+</html>

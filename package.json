@@ -1,0 +1,87 @@
+{
+  "name": "slipstream-gui",
+  "version": "1.0.0",
+  "description": "SlipStream GUI Client with HTTP Proxy",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:mac": "electron-builder --mac",
+    "build:win": "electron-builder --win",
+    "build:all": "electron-builder --mac --win"
+  },
+  "keywords": [
+    "vpn",
+    "proxy",
+    "slipstream"
+  ],
+  "author": "SlipStream GUI Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/mirzaaghazadeh/SlipStreamGUI.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mirzaaghazadeh/SlipStreamGUI/issues"
+  },
+  "homepage": "https://github.com/mirzaaghazadeh/SlipStreamGUI#readme",
+  "devDependencies": {
+    "electron": "^28.0.0",
+    "electron-builder": "^24.9.1"
+  },
+  "dependencies": {
+    "http-proxy": "1.18.1",
+    "ip": "^2.0.1",
+    "socks": "^2.7.1",
+    "socks-proxy-agent": "^8.0.2"
+  },
+  "build": {
+    "appId": "com.slipstream.gui",
+    "productName": "SlipStream GUI",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "**/*",
+      "!node_modules/**/*",
+      "!dist/**/*",
+      "!*.md",
+      "!.gitignore"
+    ],
+    "extraResources": [
+      {
+        "from": "slipstream-client-mac",
+        "to": "slipstream-client-mac",
+        "filter": [
+          "**/*"
+        ]
+      },
+      {
+        "from": "slipstream-client-win.exe",
+        "to": "slipstream-client-win.exe",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ],
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.utilities",
+      "icon": "assets/icon.png",
+      "extendInfo": {
+        "NSHighResolutionCapable": true
+      },
+      "hardenedRuntime": false,
+      "gatekeeperAssess": false
+    },
+    "win": {
+      "target": "nsis",
+      "icon": "assets/icon.png"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  }
+}
